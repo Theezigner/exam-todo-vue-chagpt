@@ -1,4 +1,8 @@
-import type { RouteRecordRaw } from "vue-router";
+import type {
+  RouteRecordRaw,
+  RouteLocationNormalized,
+  NavigationGuardNext,
+} from "vue-router";
 import TodoDetailPage from "../pages/todoDetailpage.vue";
 import { axiosInstance } from "../utils/axios";
 import { queryClient } from "../utils/queryClient";
@@ -11,8 +15,10 @@ export const loadTodoDetail = async (
 ): Promise<TodoDetailLoaderData> => {
   const key: string | number = /^\d+$/.test(rawId) ? Number(rawId) : rawId;
 
-  const cached = queryClient.getQueryData<Todo[]>(["todos"]) ?? [];
-  const fromCache = cached.find((t) => String(t.id) === String(key));
+  const cached: Todo[] = queryClient.getQueryData<Todo[]>(["todos"]) ?? [];
+  const fromCache: Todo | undefined = cached.find(
+    (t) => String(t.id) === String(key)
+  );
   if (fromCache) {
     console.log(`Todo ${key} loaded from TanStack Query cache.`);
     return { todo: fromCache };
@@ -31,7 +37,7 @@ export const loadTodoDetail = async (
     );
 
     const { db } = await import("../utils/dexieDB");
-    const offline = await db.todos.get(key as any);
+    const offline: Todo | undefined = await db.todos.get(key as any);
 
     if (offline) {
       console.log(`Todo ${key} loaded from Dexie offline database.`);
@@ -49,14 +55,18 @@ export const todoDetailRoute: RouteRecordRaw = {
   name: "todoDetail",
   component: TodoDetailPage,
 
-  beforeEnter: async (to, from, next) => {
+  beforeEnter: async (
+    to: RouteLocationNormalized,
+    _from: RouteLocationNormalized,
+    next: NavigationGuardNext
+  ) => {
     try {
-      const id = to.params.id as string;
+      const id: string = to.params.id as string;
       await loadTodoDetail(id);
       next();
     } catch (error) {
       console.error("Error loading todo detail:", error);
-      next();
+      next({ name: "home" });
     }
   },
 };

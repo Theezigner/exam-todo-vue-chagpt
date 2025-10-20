@@ -1,4 +1,8 @@
-import type { RouteRecordRaw } from "vue-router";
+import type {
+  RouteRecordRaw,
+  RouteLocationNormalized,
+  NavigationGuardNext,
+} from "vue-router";
 import HomePage from "../pages/homePage.vue";
 import { axiosInstance } from "../utils/axios";
 import { db } from "../utils/dexieDB";
@@ -10,7 +14,7 @@ export type HomeLoaderData = { todos: Todo[] };
 export const loadHomeTodos = async (): Promise<HomeLoaderData> => {
   try {
     const res = await axiosInstance.get<Todo[]>("/todos");
-    const todos = res.data;
+    const todos: Todo[] = res.data;
 
     await db.todos.clear();
     await db.todos.bulkPut(todos);
@@ -19,7 +23,7 @@ export const loadHomeTodos = async (): Promise<HomeLoaderData> => {
     return { todos };
   } catch (error) {
     console.warn("Falling back to offline todos:", error);
-    const offlineTodos = await db.todos.toArray();
+    const offlineTodos: Todo[] = await db.todos.toArray();
 
     queryClient.setQueryData<Todo[]>(["todos"], offlineTodos);
 
@@ -32,7 +36,11 @@ export const homeRoute: RouteRecordRaw = {
   name: "home",
   component: HomePage,
 
-  beforeEnter: async (to, from, next) => {
+  beforeEnter: async (
+    _to: RouteLocationNormalized,
+    _from: RouteLocationNormalized,
+    next: NavigationGuardNext
+  ) => {
     try {
       await loadHomeTodos();
       next();

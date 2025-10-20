@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { i } from 'node_modules/@tanstack/vue-query/build/modern/queryClient-BCt_J-HC';
 import { ref } from 'vue';
 import { FiEdit2 } from 'vue-icons-lib/fi';
 import type { Todo } from '../utils/dexieDB';

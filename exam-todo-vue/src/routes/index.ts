@@ -1,4 +1,9 @@
-import { createRouter, createWebHistory } from "vue-router";
+import {
+  createRouter,
+  createWebHistory,
+  type RouteLocationNormalized,
+  type NavigationGuardNext,
+} from "vue-router";
 import Layout from "../layouts/layout.vue";
 import HomePage from "../pages/homePage.vue";
 import NotFoundPage from "../pages/notFoundPage.vue";
@@ -16,7 +21,11 @@ const router = createRouter({
           path: "",
           name: "home",
           component: HomePage,
-          beforeEnter: async (to, from, next) => {
+          beforeEnter: async (
+            _to: RouteLocationNormalized,
+            _from: RouteLocationNormalized,
+            next: NavigationGuardNext
+          ) => {
             try {
               await loadHomeTodos();
               next();
@@ -27,7 +36,6 @@ const router = createRouter({
           },
         },
         todoDetailRoute,
-        // ... other routes
       ],
     },
     {
